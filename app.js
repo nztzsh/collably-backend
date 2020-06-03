@@ -6,6 +6,8 @@ const cookieSession = require('cookie-session');
 const passport = require('passport');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const authRoutes = require('./routes/authRoutes');
+require('./config/PassportSetup');
 
 const app = express();
 
@@ -32,9 +34,12 @@ app.use(cookieSession({
     keys: [process.env.SESSION_KEY]
   }));
   
-  //initialize passport
-  app.use(passport.initialize());
-  app.use(passport.session());
+//initialize passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+//Routes
+app.use('/auth', authRoutes);
 
 app.listen(process.env.PORT, function(){
     console.log('Listening to port ' + process.env.PORT);

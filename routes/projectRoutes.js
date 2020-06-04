@@ -179,7 +179,8 @@ router.get('/projectDetail', async function(req, res){
             for(i=0; i<project.members.length; i++){
                 let user = await User.findById(project.members[i].id);
                 let priority = project.members[i].priority;
-                members.push({username: user.username, priority: priority});
+                let rating = user.rating;
+                members.push({username: user.username, priority: priority, rating: rating});
             }
             members.sort(function(a, b){return a.priority - b.priority});
             let details = {

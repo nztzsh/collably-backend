@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 require('./config/PassportSetup');
 const projectRoutes = require('./routes/projectRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use(passport.session());
 //Routes
 app.use('/auth', authRoutes);
 app.use('/project', projectRoutes);
+app.use('/profile', profileRoutes);
 
 app.listen(process.env.PORT, function(){
     console.log('Listening to port ' + process.env.PORT);

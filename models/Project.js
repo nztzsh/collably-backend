@@ -11,7 +11,8 @@ const ProjectSchema = new Schema({
     countries: {type: [String]},
     minAge: {type: Number},
     maxAge: {type: Number},
-    skills: {type: [String]}
+    skills: {type: [String]},
+    members: {type: [{id: ObjectId, status: String, priority: Number}]}
 });
 
 const Project = mongoose.model('Project', ProjectSchema);

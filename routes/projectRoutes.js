@@ -29,7 +29,9 @@ router.post('/addProject', async function(req, res){
 
     try{
         await project.save();
-        res.json({message: 'done'});
+        req.user.myProjects.push(project._id);
+        req.user.save();
+        res.json({message: 'done', createdBy: req.user.username, id: project._id});
     }
     catch{
         res.json({message: 'Server Error, please try again later'});
@@ -161,7 +163,8 @@ router.get('/getProjects', async function(req, res){
         let projects = [];
         for(i=0; i<list.length; i++){
             let tmp = await Project.findById(list[i]);
-            let project = {title: tmp.title, createdBy: tmp.createdBy};
+            let user = await User.findById(tmp.createdBy);
+            let project = {title: tmp.title, createdBy: user.username, id: tmp._id};
             projects.push(project);
         }
         return res.json({projects: projects});

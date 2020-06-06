@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const Project = require('../models/Project');
 const User = require('../models/User');
-const searchIntersection = require('../controllers/searchIntersection');
 const bcrypt = require('bcrypt');
 
 router.post('/addProject', async function(req, res){
@@ -39,8 +38,8 @@ router.post('/addProject', async function(req, res){
 });
 
 router.get('/search', async function(req, res){
-    let tags = req.query.tags;
-    if(tags.length === 0){
+    let tags = req.query.tags.split('+');
+    if(tags[0] === ''){
         return res.json({projects: []});
     }else if(tags.length === 1){
         let tag0 = tags[0];
@@ -50,9 +49,12 @@ router.get('/search', async function(req, res){
             {"description": {$regex: tag0, $options: 'i'}}]});
             let projects = [];
             for(i=0; i<inter.length; i++){
+                let user = await User.findById(inter[i].createdBy);
+                let createdBy = user.username;
                 let project = {
                     title: inter[i].title,
-                    createdBy: inter[i].createdBy
+                    createdBy: createdBy,
+                    id: inter[i]._id
                 };
                 projects.push(project);
             }
@@ -71,10 +73,34 @@ router.get('/search', async function(req, res){
                 let curr = await Project.find({$or: [{universities: tag},
                     {countries: tag}, {skills: tag}, {minQual: tag}, {"title": {$regex: tag, $options: 'i'}},
                     {"description": {$regex: tag, $options: 'i'}}]});
-                let tmp = searchIntersection(inter, curr);
+                let tmp = [...inter, ...curr];
                 inter = tmp;
             }
-            return res.json({project: inter});
+            
+            let uniqueObject = {}; 
+               
+            for (let i in inter) {  
+                objId = inter[i]._id; 
+                uniqueObject[objId] = inter[i]; 
+            } 
+              
+            let newArray = [] 
+            for (i in uniqueObject) { 
+                newArray.push(uniqueObject[i]); 
+            } 
+
+            let projects = [];
+            for(i=0; i<newArray.length; i++){
+                let user = await User.findById(newArray[i].createdBy);
+                let createdBy = user.username;
+                let project = {
+                    title: newArray[i].title,
+                    createdBy: createdBy,
+                    id: newArray[i]._id
+                };
+                projects.push(project);
+            }
+            return res.json({projects: projects});
         }catch(e){
             console.log(e);
         }
